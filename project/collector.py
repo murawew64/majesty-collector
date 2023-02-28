@@ -1,6 +1,6 @@
-from .collectors import KSInflation
+from .collectors import KSInflation, RosstatInflation
 
-sources_classes = [KSInflation]
+sources_classes = [KSInflation, RosstatInflation]
 
 
 def collect_data():
