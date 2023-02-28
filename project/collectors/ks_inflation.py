@@ -13,15 +13,23 @@ class KSInflation(BaseCollector):
     def pull(self):
         ts = int(datetime.now().timestamp())
         link = 'https://cbr.ru/Queries/UniDbQuery/DownloadExcel/132934?Posted=True&From=17.09.2012&To=27.02.2023&FromDate=09%2F17%2F2013&ToDate=02%2F27%2F2023'
-        responce = requests.get(link, allow_redirects=True)
+        try:
+            responce = requests.get(link, allow_redirects=True)
+        except Exception as e:
+            log.error(e)
+            return
 
         if responce.status_code != 200:
             log.error(f'Status code: {responce.status_code}')
         else:
             if not os.path.exists(self.directory):
+                log.info(f'Create dir {self.directory}')
                 os.makedirs(self.directory)
-            with open(f'{self.directory}/ks_inflation_{ts}.xlsx', 'wb') as f:
+
+            file = f'{self.directory}/ks_inflation_{ts}.xlsx'
+            with open(file, 'wb') as f:
                 f.write(responce.content)
+            log.info(f'Create file {file}')
 
     def push(self):
         pass
