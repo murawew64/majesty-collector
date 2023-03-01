@@ -6,6 +6,11 @@ import os
 
 
 class RosstatInflation(BaseCollector):
+    '''
+    Origins:
+    https://rosstat.gov.ru/statistics/price
+    Индексы потребительских цен на товары и услуги по Российской Федерации, месяцы (с 1991 г.)
+    '''
 
     def __init__(self) -> None:
         self.directory = './data'

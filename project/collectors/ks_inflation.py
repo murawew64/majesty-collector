@@ -6,6 +6,10 @@ import os
 
 
 class KSInflation(BaseCollector):
+    '''
+    Origins:
+    https://cbr.ru/hd_base/infl/
+    '''
 
     def __init__(self) -> None:
         self.directory = './data'
