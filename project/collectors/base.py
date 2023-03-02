@@ -1,6 +1,11 @@
 
 
 class BaseCollector:
+    '''
+    Origins:
+    <...url...>
+    <...description...>
+    '''
 
     def collect(self):
         self.pull()

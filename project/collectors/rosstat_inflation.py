@@ -47,8 +47,3 @@ class RosstatInflation(BaseCollector):
         True if changes are found else False
         '''
         return True
-
-
-if __name__ == '__main__':
-    cl = KSInflation()
-    cl.pull()
