@@ -50,6 +50,8 @@ class CountryCodes(BaseCollector):
 
             self._write_csv_file(return_data['country_codes'])
 
+            log.info(f'Create file {"Output file"}')
+
     def push(self):
         pass
 
