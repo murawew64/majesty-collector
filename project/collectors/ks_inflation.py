@@ -1,8 +1,9 @@
-import requests
 from .base import BaseCollector
 from datetime import datetime
 from logger import log
 import os
+import httpx
+from settings import settings
 
 
 class KSInflation(BaseCollector):
@@ -12,9 +13,9 @@ class KSInflation(BaseCollector):
     '''
 
     def __init__(self) -> None:
-        self.directory = './data'
+        self.directory = settings.path_to_data_folder
 
-    def pull(self):
+    async def pull(self):
         dt = datetime.now()
         ts = int(dt.timestamp())
         dt_date = dt.strftime("%d.%m.%Y")
@@ -23,7 +24,8 @@ class KSInflation(BaseCollector):
         link = f'https://cbr.ru/Queries/UniDbQuery/DownloadExcel/132934?Posted=True&From=17.09.2013&\
             To={dt_date}&FromDate=09%2F17%2F2013&ToDate={month}%2F{day}%2F{year}'
         try:
-            responce = requests.get(link, allow_redirects=True)
+            async with httpx.AsyncClient() as client:
+                responce = await client.get(link, follow_redirects=True)
         except Exception as e:
             log.error(e)
             return
@@ -40,10 +42,10 @@ class KSInflation(BaseCollector):
                 f.write(responce.content)
             log.info(f'Create file {file}')
 
-    def push(self):
+    async def push(self):
         pass
 
-    def check_changes(self):
+    async def check_changes(self):
         '''
         True if changes are found else False
         '''

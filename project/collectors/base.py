@@ -7,16 +7,16 @@ class BaseCollector:
     <...description...>
     '''
 
-    def collect(self):
-        self.pull()
-        if self.check_changes():
-            self.push()
+    async def collect(self):
+        await self.pull()
+        if await self.check_changes():
+            await self.push()
 
-    def pull(self):
+    async def pull(self):
         assert "Overload me!"
 
-    def push(self):
+    async def push(self):
         assert "Overload me!"
 
-    def check_changes(self):
+    async def check_changes(self):
         assert "Overload me!"

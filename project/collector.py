@@ -9,11 +9,11 @@ sources_classes = [
 ]
 
 
-def collect_data():
+async def collect_data():
     for source_class in sources_classes:
         source = source_class()
         try:
-            source.collect()
+            await source.collect()
         except Exception as e:
             log.error(
                 f'Some exception was ocurred {e}; Class type - {type(source_class)}')
