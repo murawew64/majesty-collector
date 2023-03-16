@@ -7,16 +7,32 @@ class BaseCollector:
     <...description...>
     '''
 
-    def collect(self):
-        self.pull()
-        if self.check_changes():
-            self.push()
-
-    def pull(self):
+    async def init_tables(self):
+        '''
+        Create all tables to store data in database.
+        '''
         assert "Overload me!"
 
-    def push(self):
+    async def collect(self):
+        await self.init_tables()
+        await self.pull()
+        if await self.check_changes():
+            await self.push()
+
+    async def pull(self):
+        '''
+        Collect data from api and sources.
+        '''
         assert "Overload me!"
 
-    def check_changes(self):
+    async def push(self):
+        '''
+        Save data in database.
+        '''
+        assert "Overload me!"
+
+    async def check_changes(self):
+        '''
+        Check data changes before save new data.
+        '''
         assert "Overload me!"

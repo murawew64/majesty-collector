@@ -1,8 +1,9 @@
-import requests
 from .base import BaseCollector
 from datetime import datetime
 from logger import log
 import os
+import httpx
+from settings import settings
 
 
 class RosstatInflation(BaseCollector):
@@ -13,16 +14,23 @@ class RosstatInflation(BaseCollector):
     '''
 
     def __init__(self) -> None:
-        self.directory = './data'
+        self.directory = settings.path_to_data_folder
 
-    def pull(self):
+    async def init_tables(self):
+        '''
+        Create all tables to store data in database.
+        '''
+        pass
+
+    async def pull(self):
         dt = datetime.now()
         ts = int(dt.timestamp())
 
         # TODO: check ipc_mes-1 is immutable name
         link = f'https://rosstat.gov.ru/storage/mediabank/ipc_mes-1.xlsx'
         try:
-            responce = requests.get(link, allow_redirects=True)
+            async with httpx.AsyncClient() as client:
+                responce = await client.get(link, follow_redirects=True)
         except Exception as e:
             log.error(e)
             return
@@ -39,10 +47,10 @@ class RosstatInflation(BaseCollector):
                 f.write(responce.content)
             log.info(f'Create file {file}')
 
-    def push(self):
+    async def push(self):
         pass
 
-    def check_changes(self):
+    async def check_changes(self):
         '''
         True if changes are found else False
         '''

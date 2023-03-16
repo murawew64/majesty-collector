@@ -1,9 +1,11 @@
-import requests
-from ..base import BaseCollector
+from project.collectors.base import BaseCollector
 from datetime import datetime
 from logger import log
 import os
 import csv
+import httpx
+from settings import settings
+from project.db.base import DBWorker
 
 
 class CountryCodes(BaseCollector):
@@ -14,10 +16,30 @@ class CountryCodes(BaseCollector):
     '''
 
     def __init__(self) -> None:
-        self.directory = './data'
+        self.directory = settings.path_to_data_folder
+        self.table_name = 'wb_country_code'
 
-    def _write_csv_file(self, csv_data):
-        with open(f'{self.directory}/country_codes.csv', mode='w', encoding='utf-8', newline='') as file:
+    async def init_tables(self):
+        '''
+        Create all tables to store data in database.
+        '''
+        table_sql = f"""
+        CREATE TABLE IF NOT EXISTS {self.table_name}
+        (
+            `countryid` Int32,
+            `name`      String,
+            `iso`       String
+        )
+        ENGINE = MergeTree
+        ORDER BY countryid
+        """
+
+        self.db = DBWorker()
+        # SHOW TABLES FROM crude_data
+        self.db.create_table('wb_country_code', table_sql)
+
+    def _write_csv_file(self, csv_data, filename):
+        with open(filename, mode='w', encoding='utf-8', newline='') as file:
             csv_writer = csv.writer(
                 file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
@@ -25,13 +47,14 @@ class CountryCodes(BaseCollector):
             for dt in csv_data:
                 csv_writer.writerow([dt['countryid'], dt['name'], dt['iso']])
 
-    def pull(self):
+    async def pull(self):
         dt = datetime.now()
         ts = int(dt.timestamp())
 
         link = f'http://microdata.worldbank.org/index.php/api/catalog/country_codes'
         try:
-            responce = requests.get(link, allow_redirects=True)
+            async with httpx.AsyncClient() as client:
+                responce = await client.get(link, follow_redirects=True)
         except Exception as e:
             log.error(e)
             return
@@ -48,12 +71,15 @@ class CountryCodes(BaseCollector):
                 log.error(f'Error status {return_data.get("status")}')
                 return
 
-            self._write_csv_file(return_data['country_codes'])
+            filename = f'{self.directory}/country_codes.csv'
+            self._write_csv_file(return_data['country_codes'], filename)
 
-    def push(self):
+            log.info(f'Create file {filename}')
+
+    async def push(self):
         pass
 
-    def check_changes(self):
+    async def check_changes(self):
         '''
         True if changes are found else False
         '''
