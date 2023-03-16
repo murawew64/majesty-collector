@@ -1,10 +1,11 @@
-from ..base import BaseCollector
+from project.collectors.base import BaseCollector
 from datetime import datetime
 from logger import log
 import os
 import csv
 import httpx
 from settings import settings
+from project.db.base import DBWorker
 
 
 class CountryCodes(BaseCollector):
@@ -16,6 +17,26 @@ class CountryCodes(BaseCollector):
 
     def __init__(self) -> None:
         self.directory = settings.path_to_data_folder
+        self.table_name = 'wb_country_code'
+
+    async def init_tables(self):
+        '''
+        Create all tables to store data in database.
+        '''
+        table_sql = f"""
+        CREATE TABLE IF NOT EXISTS {self.table_name}
+        (
+            `countryid` Int32,
+            `name`      String,
+            `iso`       String
+        )
+        ENGINE = MergeTree
+        ORDER BY countryid
+        """
+
+        self.db = DBWorker()
+        # SHOW TABLES FROM crude_data
+        self.db.create_table('wb_country_code', table_sql)
 
     def _write_csv_file(self, csv_data, filename):
         with open(filename, mode='w', encoding='utf-8', newline='') as file:

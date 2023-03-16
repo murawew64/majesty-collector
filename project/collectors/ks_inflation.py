@@ -15,6 +15,12 @@ class KSInflation(BaseCollector):
     def __init__(self) -> None:
         self.directory = settings.path_to_data_folder
 
+    async def init_tables(self):
+        '''
+        Create all tables to store data in database.
+        '''
+        pass
+
     async def pull(self):
         dt = datetime.now()
         ts = int(dt.timestamp())

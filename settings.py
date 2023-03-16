@@ -9,3 +9,5 @@ class settings:
     db_host = config['DEFAULT']['DB_HOST']
     db_login = config['DEFAULT']['DB_LOGIN']
     db_password = config['DEFAULT']['DB_PASSWORD']
+    db_admin_login = config['DEFAULT']['DB_ADMIN_LOGIN']
+    db_admin_password = config['DEFAULT']['DB_ADMIN_PASSWORD']
