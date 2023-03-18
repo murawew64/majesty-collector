@@ -6,6 +6,8 @@ import csv
 import httpx
 from settings import settings
 from project.db.base import DBWorker
+import numpy as np
+import pandas as pd
 
 
 class CountryCodes(BaseCollector):
@@ -70,14 +72,18 @@ class CountryCodes(BaseCollector):
             if return_data['status'] != 'success':
                 log.error(f'Error status {return_data.get("status")}')
                 return
+            # to push
+            self.pull_data = return_data['country_codes']
 
+            # save to csv
             filename = f'{self.directory}/country_codes.csv'
             self._write_csv_file(return_data['country_codes'], filename)
 
             log.info(f'Create file {filename}')
 
     async def push(self):
-        pass
+        df = pd.DataFrame(self.pull_data)
+        self.db.client.insert_df(table=self.table_name, df=df)
 
     async def check_changes(self):
         '''
